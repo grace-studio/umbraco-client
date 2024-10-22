@@ -13,7 +13,10 @@ export class UmbracoClient<T extends {}> {
   public get: ClientMethod<T, 'get', `${string}/${string}`>;
 
   private constructor(config: UmbracoClientConfig) {
-    this.__client = createClient<T>({ baseUrl: config.apiUrl });
+    this.__client = createClient<T>({
+      baseUrl: config.apiUrl,
+      // headers: { Authorization: `Bearer ${config.apiToken}` },
+    });
     this.get = this.__client.GET;
   }
 

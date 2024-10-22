@@ -5,6 +5,4 @@ export type FilterV2Keys<T> = {
 export type UmbracoClientConfig = {
   apiUrl: string;
   apiToken: string;
-  // headers?: Record<string, string>;
-  // verbose?: boolean;
 };
