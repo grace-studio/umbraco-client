@@ -11,6 +11,7 @@
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "removeComments": true,
+    "noUncheckedIndexedAccess": true,
     "outDir": "lib/esm",
     "strict": true
   },

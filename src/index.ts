@@ -1,1 +1,2 @@
-export { NextUmbraco } from './services/nextUmbraco';
+export { UmbracoClient } from './services/umbracoClient';
+export type { UmbracoClientConfig } from './types';

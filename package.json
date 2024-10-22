@@ -1,7 +1,7 @@
 {
-  "name": "@grace-studio/next-umbraco",
+  "name": "@grace-studio/umbraco-client",
   "version": "0.0.1",
-  "description": "Middle layer to connect a Next.js application with Umbraco Delivery API.",
+  "description": "Middle layer to connect with Umbraco Delivery API.",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
   "types": "./lib/esm/index.d.ts",
@@ -17,22 +17,24 @@
     "lint": "eslint",
     "prepublishOnly": "npm test && npm run lint && npm run build",
     "preversion": "npm test && npm run lint",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "dev-gen-types": "NODE_TLS_REJECT_UNAUTHORIZED=0 npx openapi-typescript https://localhost:44317/umbraco/swagger/delivery/swagger.json -o ./_dev/types.ts",
+    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node --project tsconfig.dev.json dev/index.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/grace-studio/next-umbraco.git"
+    "url": "git+https://github.com/grace-studio/umbraco-client.git"
   },
   "keywords": [],
   "author": "Grace Studio",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/grace-studio/next-umbraco/issues"
+    "url": "https://github.com/grace-studio/umbraco-client/issues"
   },
-  "homepage": "https://github.com/grace-studio/next-umbraco#readme",
+  "homepage": "https://github.com/grace-studio/umbraco-client#readme",
   "devDependencies": {
     "@types/jest": "29.5.13",
-    "@types/node": "22.7.5",
+    "@types/node": "22.7.8",
     "@types/qs": "6.9.16",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-import": "2.31.0",
@@ -41,10 +43,12 @@
     "prettier": "3.3.3",
     "prettier-eslint": "16.3.0",
     "ts-jest": "29.2.5",
+    "ts-node": "10.9.2",
     "typescript": "5.6.3"
   },
   "dependencies": {
     "deepmerge": "4.3.1",
+    "openapi-fetch": "0.12.2",
     "qs": "6.13.0"
   },
   "directories": {

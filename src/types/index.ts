@@ -1,10 +1,10 @@
-export type NextUmbracoConfig = {
-  apiUrl: string;
-  apiToken: string;
-  headers?: Record<string, string>;
-  verbose?: boolean;
+export type FilterV2Keys<T> = {
+  [K in keyof T as K extends `${string}v2${string}` ? K : never]: T[K];
 };
 
-type FetchOptions = {
-  extraFetchOptions?: RequestInit;
+export type UmbracoClientConfig = {
+  apiUrl: string;
+  apiToken: string;
+  // headers?: Record<string, string>;
+  // verbose?: boolean;
 };

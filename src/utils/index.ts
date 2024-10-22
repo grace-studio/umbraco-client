@@ -1,12 +1,12 @@
 import { randomUUID } from 'crypto';
-import { NextUmbracoConfig } from '../types';
+import { UmbracoClientConfig } from '../types';
 
 export const throwError = (message: string, ...otherMessages: string[]) => {
   console.error(...otherMessages);
-  throw new Error(`NextStrapi: ${message}`);
+  throw new Error(`UmbracoClient: ${message}`);
 };
 
-export const validateConfig = (config: NextUmbracoConfig) => {
+export const validateConfig = (config: UmbracoClientConfig) => {
   if (!config) {
     throwError('No config provided.');
   }
@@ -20,11 +20,11 @@ export const validateConfig = (config: NextUmbracoConfig) => {
   }
 };
 
-export const generateUUID = () =>
-  randomUUID({ disableEntropyCache: true }).replace(/[\W_]+/g, '');
+// export const generateUUID = () =>
+//   randomUUID({ disableEntropyCache: true }).replace(/[\W_]+/g, '');
 
-export const logger = (message: object, verbose?: boolean) =>
-  verbose &&
-  console.log(
-    JSON.stringify({ timestamp: new Date().toISOString(), message }, null, 2),
-  );
+// export const logger = (message: object, verbose?: boolean) =>
+//   verbose &&
+//   console.log(
+//     JSON.stringify({ timestamp: new Date().toISOString(), message }, null, 2),
+//   );
