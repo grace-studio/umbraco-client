@@ -13,8 +13,7 @@ type Models = components['schemas'];
     getContent: () =>
       apiClient
         .get('/umbraco/delivery/api/v2/content')
-        .then(UmbracoClient.format.content)
-        .then(UmbracoClient.filter.hasCultures),
+        .then(UmbracoClient.format.content),
     getContentItem: (path: string) =>
       apiClient
         .get('/umbraco/delivery/api/v2/content/item/{path}', {
@@ -25,19 +24,29 @@ type Models = components['schemas'];
           },
         })
         .then(UmbracoClient.format.contentItem),
-    getPaths: () =>
-      apiClient
-        .get('/umbraco/delivery/api/v2/content', {
-          params: {
-            query: { fields: 'properties[none]' },
-          },
-        })
-        .then(UmbracoClient.format.paths),
+    getMenu: (basePath: string) =>
+      apiClient.getMenu({
+        basePath,
+        excludeHidden: true,
+        mappingFunctions: {
+          hidden: ({ umbracoNaviHide }) => Boolean(umbracoNaviHide),
+          type: ({ isSecondaryLink }) =>
+            isSecondaryLink === true ? 'secondary' : 'primary',
+        },
+      }),
+    getPaths: (basePath: string) =>
+      apiClient.getPaths({
+        basePath,
+        excludeHidden: true,
+        mappingFunctions: {
+          hidden: ({ umbracoNaviHide }) => Boolean(umbracoNaviHide),
+        },
+      }),
   };
 
-  const c = await api.getContent();
-  const p = await api.getPaths();
-  const i = await api.getContentItem('/faq/');
-  console.log(p);
-  console.log(i);
+  const menu = await api.getMenu('/sv');
+  const paths = await api.getPaths('/sv');
+
+  console.log(JSON.stringify(menu, null, 2));
+  console.log(JSON.stringify(paths, null, 2));
 })();

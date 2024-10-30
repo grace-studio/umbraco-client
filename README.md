@@ -50,9 +50,6 @@ Below is an example of how to use the `UmbracoClient` in your Next.js applicatio
 import type { components, paths } from '#api/types';
 import { UmbracoClient } from '@grace-studio/umbraco-client';
 
-// Define your API models
-type Models = components['schemas'];
-
 // Create an instance of UmbracoClient
 const apiClient = UmbracoClient.create<paths>({
   apiToken: 'your-api-token', // Replace with your actual API token
@@ -70,8 +67,7 @@ Here are some common use cases for fetching content from the Umbraco CMS using t
 const getContent = () =>
   apiClient
     .get('/umbraco/delivery/api/v2/content')
-    .then(UmbracoClient.format.content) // Format the content
-    .then(UmbracoClient.filter.hasCultures); // Filter content based on cultures
+    .then(UmbracoClient.format.content); // Format the content
 ```
 
 #### Fetch a Specific Content Item by Path
@@ -90,12 +86,34 @@ const getContentItem = (path: string) =>
 #### Fetch Content Paths
 
 ```typescript
-const getPaths = () =>
-  apiClient
-    .get('/umbraco/delivery/api/v2/content', {
-      params: {
-        query: { fields: 'properties[none]' }, // Customize query parameters
-      },
-    })
-    .then(UmbracoClient.format.paths); // Format paths for your app
+const getPaths = (
+  basePath: string, // Base path, eg. your locale '/en'
+) =>
+  apiClient.getPaths({
+    basePath,
+    excludeHidden: true, // Exclude hidden content
+    mappingFunctions: {
+      // Add custom mapping functions for hidden content based on properties
+      hidden: ({ umbracoNaviHide }) => Boolean(umbracoNaviHide),
+    },
+  });
+```
+
+#### Fetch Content Menu
+
+```typescript
+const getMenu = (
+  basePath: string, // Base path, eg. your locale '/en'
+) =>
+  apiClient.getMenu({
+    basePath,
+    excludeHidden: true, // Exclude hidden content
+    mappingFunctions: {
+      // Add custom mapping functions for hidden content based on properties
+      hidden: ({ umbracoNaviHide }) => Boolean(umbracoNaviHide),
+      type: (
+        { isSecondaryLink }, // Custom mapping function for menu item type
+      ) => (isSecondaryLink === true ? 'secondary' : 'primary'),
+    },
+  });
 ```

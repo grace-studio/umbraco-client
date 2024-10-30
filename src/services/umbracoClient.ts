@@ -1,12 +1,18 @@
 import { throwError, validateConfig } from '../utils';
-import type { FilterV2Keys, UmbracoClientConfig } from '../types';
+import type { FilterV2Keys, PathConfig, UmbracoClientConfig } from '../types';
 import createClient, { Client, ClientMethod } from 'openapi-fetch';
-import { BaseItem, BasePage, ContentResponse, Path } from '../types/client';
-
-const internals = {
-  cultureFilter: (item: { cultures: Record<string, object> }) =>
-    Object.keys(item.cultures).length > 0,
-};
+import {
+  BaseItem,
+  BasePage,
+  ContentResponse,
+  MenuItem,
+  MenuPageItem,
+  PathItem,
+} from '../types/client';
+import {
+  buildMenuHierarchy,
+  flattenMenuHierarchy,
+} from '../utils/buildMenuHierarchy';
 
 export class UmbracoClient<T extends {}> {
   private __client: Client<T>;
@@ -24,6 +30,83 @@ export class UmbracoClient<T extends {}> {
     validateConfig(config);
 
     return new UmbracoClient<FilterV2Keys<T>>(config);
+  }
+
+  private __getPathDescendants(path: string) {
+    return this.get(
+      '/umbraco/delivery/api/v2/content' as any,
+      {
+        params: {
+          query: {
+            fetch: `descendants:${path}`,
+            sort: 'sortOrder:asc',
+          },
+        },
+      } as any,
+    ).then(UmbracoClient.format.content);
+  }
+
+  public async getPaths(config: PathConfig = { basePath: 'en' }) {
+    const menu = await this.getMenu(config);
+
+    return this.__format.pathItems(flattenMenuHierarchy(menu));
+  }
+
+  public async getMenu(config: PathConfig = { basePath: 'en' }) {
+    const conf: PathConfig = {
+      ...config,
+      mappingFunctions: {
+        hidden: () => false,
+        type: () => '',
+        ...config.mappingFunctions,
+      },
+    };
+
+    const menuItems = await this.__getPathDescendants(conf.basePath).then(
+      this.__format.menuItems(conf),
+    );
+
+    return conf.excludeHidden
+      ? this.__filter.hiddenMenuItems(buildMenuHierarchy(menuItems))
+      : buildMenuHierarchy(menuItems);
+  }
+
+  private get __format() {
+    return {
+      menuItems:
+        (config: PathConfig) =>
+        (items: MenuPageItem[]): MenuItem[] =>
+          items.map((item) => ({
+            id: item.id,
+            name: item.name,
+            path: item.route.path,
+            parent: config.basePath,
+            hidden: config.mappingFunctions!.hidden!(item.properties),
+            type: config.mappingFunctions!.type!(item.properties),
+            children: [],
+          })),
+      pathItems: (items: MenuItem[]): PathItem[] =>
+        items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          hidden: item.hidden,
+          parent: item.parent,
+          path: item.path,
+          type: item.type,
+        })),
+    };
+  }
+
+  private get __filter() {
+    return {
+      hiddenMenuItems: (items: MenuItem[]): MenuItem[] =>
+        items
+          .filter((item) => !item.hidden)
+          .map((item) => ({
+            ...item,
+            children: this.__filter.hiddenMenuItems(item.children),
+          })),
+    };
   }
 
   static get format() {
@@ -54,26 +137,6 @@ export class UmbracoClient<T extends {}> {
           `Fetching content item failed, status ${response?.status}, url ${response?.url}`,
         );
       },
-      paths: <D extends BasePage, E>(
-        content: ContentResponse<D, E>,
-      ): Path[] | undefined =>
-        UmbracoClient.format
-          .content(content)
-          ?.filter(internals.cultureFilter)
-          .flatMap((item) =>
-            Object.entries(item.cultures).map(([locale, culture]) => ({
-              locale,
-              path: culture.path,
-            })),
-          ),
-    };
-  }
-
-  static get filter() {
-    return {
-      hasCultures: <D extends { cultures: Record<string, object> }>(
-        items: D[] = [],
-      ) => items.filter(internals.cultureFilter),
     };
   }
 }

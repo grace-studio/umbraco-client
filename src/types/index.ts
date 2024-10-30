@@ -6,3 +6,12 @@ export type UmbracoClientConfig = {
   apiUrl: string;
   apiToken: string;
 };
+
+export type PathConfig = {
+  basePath: string;
+  excludeHidden?: boolean;
+  mappingFunctions?: {
+    type?: (properties: Record<string, any>) => string;
+    hidden?: (properties: Record<string, any>) => boolean;
+  };
+};
