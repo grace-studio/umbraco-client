@@ -96,6 +96,9 @@ const getPaths = (
       // Add custom mapping functions for hidden content based on properties
       hidden: ({ umbracoNaviHide }) => Boolean(umbracoNaviHide),
     },
+    extraQueryParams: {
+      sort: 'sortOrder:desc', // Possible to add extra query params to pass to Umbraco
+    },
   });
 ```
 
