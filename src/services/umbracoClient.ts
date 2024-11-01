@@ -32,7 +32,10 @@ export class UmbracoClient<T extends {}> {
     return new UmbracoClient<FilterV2Keys<T>>(config);
   }
 
-  private __getPathDescendants(path: string) {
+  private __getPathDescendants(
+    path: string,
+    extraQueryParams: Record<string, string> = {},
+  ) {
     return this.get(
       '/umbraco/delivery/api/v2/content' as any,
       {
@@ -40,6 +43,7 @@ export class UmbracoClient<T extends {}> {
           query: {
             fetch: `descendants:${path}`,
             sort: 'sortOrder:asc',
+            ...extraQueryParams,
           },
         },
       } as any,
@@ -62,9 +66,10 @@ export class UmbracoClient<T extends {}> {
       },
     };
 
-    const menuItems = await this.__getPathDescendants(conf.basePath).then(
-      this.__format.menuItems(conf),
-    );
+    const menuItems = await this.__getPathDescendants(
+      conf.basePath,
+      conf.extraQueryParams,
+    ).then(this.__format.menuItems(conf));
 
     return conf.excludeHidden
       ? this.__filter.hiddenMenuItems(buildMenuHierarchy(menuItems))

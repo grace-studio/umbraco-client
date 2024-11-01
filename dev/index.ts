@@ -33,6 +33,9 @@ type Models = components['schemas'];
           type: ({ isSecondaryLink }) =>
             isSecondaryLink === true ? 'secondary' : 'primary',
         },
+        extraQueryParams: {
+          // sort: 'sortOrder:desc',
+        },
       }),
     getPaths: (basePath: string) =>
       apiClient.getPaths({
