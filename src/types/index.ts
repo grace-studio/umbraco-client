@@ -15,4 +15,5 @@ export type PathConfig = {
     hidden?: (properties: Record<string, any>) => boolean;
   };
   extraQueryParams?: Record<string, string>;
+  headers?: Record<string, any>;
 };

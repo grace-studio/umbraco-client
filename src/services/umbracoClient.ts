@@ -21,6 +21,10 @@ export class UmbracoClient<T extends {}> {
   private constructor(config: UmbracoClientConfig) {
     this.__client = createClient<T>({
       baseUrl: config.apiUrl,
+      // fetch: (req: Request) => {
+      //   console.log(req);
+      //   return fetch(req);
+      // },
       // headers: { Authorization: `Bearer ${config.apiToken}` },
     });
     this.get = this.__client.GET;
@@ -35,6 +39,7 @@ export class UmbracoClient<T extends {}> {
   private __getPathDescendants(
     path: string,
     extraQueryParams: Record<string, string> = {},
+    headers?: Record<string, any>,
   ) {
     return this.get(
       '/umbraco/delivery/api/v2/content' as any,
@@ -45,15 +50,11 @@ export class UmbracoClient<T extends {}> {
             sort: 'sortOrder:asc',
             ...extraQueryParams,
           },
+          header: headers,
         },
+        // headers,
       } as any,
     ).then(UmbracoClient.format.content);
-  }
-
-  public async getPaths(config: PathConfig = { basePath: 'en' }) {
-    const menu = await this.getMenu(config);
-
-    return this.__format.pathItems(flattenMenuHierarchy(menu));
   }
 
   public async getMenu(config: PathConfig = { basePath: 'en' }) {
@@ -69,11 +70,18 @@ export class UmbracoClient<T extends {}> {
     const menuItems = await this.__getPathDescendants(
       conf.basePath,
       conf.extraQueryParams,
+      conf.headers,
     ).then(this.__format.menuItems(conf));
 
     return conf.excludeHidden
       ? this.__filter.hiddenMenuItems(buildMenuHierarchy(menuItems))
       : buildMenuHierarchy(menuItems);
+  }
+
+  public async getPaths(config: PathConfig = { basePath: 'en' }) {
+    const menu = await this.getMenu(config);
+
+    return this.__format.pathItems(flattenMenuHierarchy(menu));
   }
 
   private get __format() {
@@ -118,7 +126,6 @@ export class UmbracoClient<T extends {}> {
     return {
       content: <D extends BasePage, E>({
         data,
-        error,
         response,
       }: ContentResponse<D, E>) => {
         if (data?.items) {
@@ -131,7 +138,6 @@ export class UmbracoClient<T extends {}> {
       },
       contentItem: <D extends BaseItem, E>({
         data,
-        error,
         response,
       }: ContentResponse<D, E>) => {
         if (data) {
