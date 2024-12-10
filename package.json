@@ -1,6 +1,6 @@
 {
   "name": "@grace-studio/umbraco-client",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Middle layer to connect with Umbraco Delivery API.",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
