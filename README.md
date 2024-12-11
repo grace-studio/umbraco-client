@@ -114,9 +114,23 @@ const getMenu = (
     mappingFunctions: {
       // Add custom mapping functions for hidden content based on properties
       hidden: ({ umbracoNaviHide }) => Boolean(umbracoNaviHide),
-      type: (
-        { isSecondaryLink }, // Custom mapping function for menu item type
-      ) => (isSecondaryLink === true ? 'secondary' : 'primary'),
+    },
+    properties: {
+      // Custom functions to map properties from raw content to menu items
+      menuBlock: ({ menuBlock }) => menuBlock,
+      type: ({ isSecondaryLink }) =>
+        isSecondaryLink === true ? 'secondary' : 'primary',
+    },
+    extraQueryParams: {
+      // Specify the properties needed.
+      // Tip: Do NOT specify properties that you don't need since the total data transfer can be rather large.
+      fields: 'properties[umbracoNaviHide,isSecondaryLink,menuBlock]',
+      // Amount of records to return
+      take: '9999',
+    },
+    headers: {
+      // Custom headers
+      Preview: true,
     },
   });
 ```

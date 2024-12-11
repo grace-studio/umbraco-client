@@ -39,7 +39,7 @@ export type PathItem = {
   hidden: boolean;
   path: string;
   parent: string;
-  type: string;
+  properties?: Record<string, any>;
 };
 
 export type MenuItem = PathItem & {

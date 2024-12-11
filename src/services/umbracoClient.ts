@@ -13,6 +13,7 @@ import {
   buildMenuHierarchy,
   flattenMenuHierarchy,
 } from '../utils/buildMenuHierarchy';
+import { objectMap } from '../utils/objectMap';
 
 export class UmbracoClient<T extends {}> {
   private __client: Client<T>;
@@ -21,10 +22,6 @@ export class UmbracoClient<T extends {}> {
   private constructor(config: UmbracoClientConfig) {
     this.__client = createClient<T>({
       baseUrl: config.apiUrl,
-      // fetch: (req: Request) => {
-      //   console.log(req);
-      //   return fetch(req);
-      // },
       // headers: { Authorization: `Bearer ${config.apiToken}` },
     });
     this.get = this.__client.GET;
@@ -59,10 +56,10 @@ export class UmbracoClient<T extends {}> {
 
   public async getMenu(config: PathConfig = { basePath: 'en' }) {
     const conf: PathConfig = {
+      properties: {},
       ...config,
       mappingFunctions: {
         hidden: () => false,
-        type: () => '',
         ...config.mappingFunctions,
       },
     };
@@ -95,8 +92,10 @@ export class UmbracoClient<T extends {}> {
             path: item.route.path,
             parent: config.basePath,
             hidden: config.mappingFunctions!.hidden!(item.properties),
-            type: config.mappingFunctions!.type!(item.properties),
             children: [],
+            properties: config.properties
+              ? objectMap(config.properties, item.properties)
+              : undefined,
           })),
       pathItems: (items: MenuItem[]): PathItem[] =>
         items.map((item) => ({
@@ -105,7 +104,7 @@ export class UmbracoClient<T extends {}> {
           hidden: item.hidden,
           parent: item.parent,
           path: item.path,
-          type: item.type,
+          properties: item.properties,
         })),
     };
   }

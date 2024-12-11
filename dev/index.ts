@@ -13,7 +13,11 @@ type Models = components['schemas'];
   const api = {
     getContent: () =>
       apiClient
-        .get('/umbraco/delivery/api/v2/content')
+        .get('/umbraco/delivery/api/v2/content', {
+          params: {
+            query: { fields: 'properties[umbracoNaviHide,isSecondaryLink]' },
+          },
+        })
         .then(UmbracoClient.format.content),
     getContentItem: (path: string) =>
       apiClient
@@ -44,18 +48,25 @@ type Models = components['schemas'];
         excludeHidden: true,
         mappingFunctions: {
           hidden: ({ umbracoNaviHide }) => Boolean(umbracoNaviHide),
+        },
+        properties: {
+          menuBlock: ({ menuBlock }) => menuBlock,
           type: ({ isSecondaryLink }) =>
             isSecondaryLink === true ? 'secondary' : 'primary',
         },
         extraQueryParams: {
-          // sort: 'sortOrder:desc',
+          fields: 'properties[umbracoNaviHide,isSecondaryLink,menuBlock]',
+          take: '9999',
         },
         headers,
       }),
     getPaths: (basePath: string) =>
       apiClient.getPaths({
         basePath,
-        excludeHidden: true,
+        excludeHidden: false,
+        extraQueryParams: {
+          fields: 'properties[umbracoNaviHide,isSecondaryLink]',
+        },
         mappingFunctions: {
           hidden: ({ umbracoNaviHide }) => Boolean(umbracoNaviHide),
         },
@@ -67,6 +78,7 @@ type Models = components['schemas'];
   });
   // const paths = await api.getPaths('/sv');
 
-  // console.log(JSON.stringify(menu, null, 2));
-  // console.log(JSON.stringify(paths, null, 2));
+  // console.log(menu, menu.length);
+  console.log(JSON.stringify(menu[0], null, 2), menu.length);
+  // console.log(JSON.stringify(paths, null, 2), paths.length);
 })();

@@ -11,9 +11,9 @@ export type PathConfig = {
   basePath: string;
   excludeHidden?: boolean;
   mappingFunctions?: {
-    type?: (properties: Record<string, any>) => string;
-    hidden?: (properties: Record<string, any>) => boolean;
+    hidden?: (rawProperties: Record<string, any>) => boolean;
   };
+  properties?: Record<string, (rawProperties: Record<string, any>) => any>;
   extraQueryParams?: Record<string, string>;
   headers?: Record<string, any>;
 };
